@@ -1,0 +1,83 @@
+﻿@model Bulky.Models.Movie
+
+<form method="post">
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h2 class="text-primary">Edit Movie</h2>
+            <hr />
+        </div>
+
+        @* Title Field *@
+        <div class="mb-3 row p-1">
+            <label asp-for="Title" class="p-0"></label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        @* Genre Field *@
+        <div class="mb-3 row p-1">
+            <label asp-for="Genre" class="p-0"></label>
+            <input asp-for="Genre" class="form-control" />
+            <span asp-validation-for="Genre" class="text-danger"></span>
+        </div>
+
+        @* Description Field *@
+        <div class="mb-3 row p-1">
+            <label asp-for="Description" class="p-0"></label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        @* --- AI SCRIPT SECTION (Included here too!) --- *@
+        <div class="mb-3 row p-1">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label asp-for="MovieScript" class="p-0 mb-0">Movie Script</label>
+
+                @* Toggle Button *@
+                <button type="button" class="btn btn-outline-warning btn-sm" onclick="toggleAiInput()">
+                    ✨ Generate with AI
+                </button>
+            </div>
+
+            @* Hidden Prompt Box *@
+            <div id="ai-input-section" class="card bg-light mb-2 p-3" style="display:none;">
+                <label class="form-label text-muted small"><strong>AI Instructions:</strong></label>
+                <div class="input-group">
+                    <input type="text" id="aiPrompt" class="form-control" placeholder="e.g. Rewrite the ending to be happier..." />
+                    <button type="button" class="btn btn-dark">Generate</button>
+                </div>
+            </div>
+
+            @* Script Textarea *@
+            <textarea asp-for="MovieScript" class="form-control" rows="10"></textarea>
+            <span asp-validation-for="MovieScript" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-6 col-md-3">
+                <button type="submit" class="btn btn-primary form-control">Update</button>
+            </div>
+            <div class="col-6 col-md-3">
+                <a asp-controller="Movie" asp-action="Index" class="btn btn-outline-secondary border form-control">
+                    Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        function toggleAiInput() {
+            var section = document.getElementById("ai-input-section");
+            if (section.style.display === "none") {
+                section.style.display = "block";
+            } else {
+                section.style.display = "none";
+            }
+        }
+    </script>
+}
