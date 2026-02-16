@@ -44,7 +44,7 @@
                 <label class="form-label text-muted small"><strong>AI Instructions:</strong> What should happen in this movie?</label>
                 <div class="input-group">
                     <input type="text" id="aiPrompt" class="form-control" placeholder="e.g. Write a tense scene where the hero defuses a bomb..." />
-                    <button type="button" class="btn btn-dark">Generate</button>
+                    <button type="button" id="btnGenerateActual" class="btn btn-dark" onclick="generateScript()">Generate</button>
                 </div>
                 <small class="text-muted">This will use Llama 3 to write a script for you.</small>
             </div>
@@ -71,13 +71,67 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-        // Simple script to toggle the AI box visibility
+        // 1. Toggle the hidden AI box
         function toggleAiInput() {
             var section = document.getElementById("ai-input-section");
-            if (section.style.display === "none") {
-                section.style.display = "block";
-            } else {
-                section.style.display = "none";
+            section.style.display = (section.style.display === "none") ? "block" : "none";
+        }
+
+        // 2. The function that calls the AI
+        async function generateScript() {
+            // Get values from the form
+            var prompt = document.getElementById("aiPrompt").value;
+            var title = document.getElementById("Title").value; // Matches asp-for="Title"
+            var genre = document.getElementById("Genre").value; // Matches asp-for="Genre"
+
+            // Get UI elements to show loading state
+            var btn = document.getElementById("btnGenerateActual");
+            var textArea = document.getElementById("MovieScript"); // Matches asp-for="MovieScript"
+
+            // Validation
+            if (!prompt) {
+                alert("Please enter a plot summary or instruction for the AI.");
+                return;
+            }
+
+            // UI: Switch to Loading State
+            var originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "Writing Script...";
+            textArea.placeholder = "The AI is writing your masterpiece... this may take a few seconds.";
+
+            try {
+                // Send data to the server
+                const response = await fetch('/Movie/GenerateAiScript', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        title: title,
+                        genre: genre
+                    })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Success! Typewriter effect (optional) or just paste it
+                    textArea.value = data.script;
+                } else {
+                    alert("Error: " + data.message);
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Failed to generate script. Check console for details.");
+            } finally {
+                // UI: Reset Button
+                btn.disabled = false;
+                btn.innerText = originalText;
             }
         }
     </script>
